@@ -280,5 +280,4 @@ class VideoChess:
 # Example usage
 if __name__ == "__main__":
     game = VideoChess()
-    print("Atari 2600 Video Chess initialized")
-    print("Board state:", game.get_board_state()[:16])  # Show first two ranks
+    game.main_loop()  # Start the game loop
