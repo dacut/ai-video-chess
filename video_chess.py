@@ -38,7 +38,7 @@ class VideoChess:
         self.board = [0] * 64
         
         # Initial piece setup (back rank)
-        initial_pieces = [5, 4, 3, 2, 1, 3, 4, 5]  # rook, knight, bishop, queen, king, bishop, knight, rook
+        initial_pieces = [5, 4, 3, 2, 6, 3, 4, 5]  # rook, knight, bishop, queen, king, bishop, knight, rook
         
         # White pieces (bottom)
         for i in range(8):
