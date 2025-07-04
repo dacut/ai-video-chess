@@ -149,10 +149,25 @@ class VideoChess:
         row, col = square // 8, square % 8
         
         if piece_type == 1:  # Pawn
-            direction = -1 if self.board[square] & 0x80 else 1
+            direction = 1 if self.board[square] & 0x40 else -1  # White moves up, black moves down
             new_row = row + direction
-            if 0 <= new_row < 8:
+            
+            # Forward move
+            if 0 <= new_row < 8 and self.board[new_row * 8 + col] == 0:
                 moves.append(new_row * 8 + col)
+                
+                # Two-square advance from starting position
+                start_row = 1 if self.board[square] & 0x40 else 6
+                if row == start_row and 0 <= new_row + direction < 8 and self.board[(new_row + direction) * 8 + col] == 0:
+                    moves.append((new_row + direction) * 8 + col)
+            
+            # Diagonal captures
+            for dc in [-1, 1]:
+                if 0 <= new_row < 8 and 0 <= col + dc < 8:
+                    target_square = new_row * 8 + (col + dc)
+                    target_piece = self.board[target_square]
+                    if target_piece != 0 and (target_piece & 0xC0) != (self.board[square] & 0xC0):
+                        moves.append(target_square)
         
         elif piece_type == 5:  # Rook
             for dr, dc in [(0,1), (0,-1), (1,0), (-1,0)]:
@@ -176,13 +191,20 @@ class VideoChess:
             return False
         
         source_piece = self.board[source]
+        if source_piece == 0:
+            return False
+        
         dest_piece = self.board[dest]
         
         # Can't capture own piece
         if dest_piece != 0 and (source_piece & 0xC0) == (dest_piece & 0xC0):
             return False
         
-        return True
+        # Check if destination is in legal moves for this piece
+        piece_type = source_piece & 0x0F
+        legal_moves = self.get_piece_moves(source, piece_type)
+        
+        return dest in legal_moves
     
     def execute_move(self):
         """Execute the current move (F379-F383)"""
