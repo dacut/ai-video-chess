@@ -1,0 +1,108 @@
+> I'll annotate this Atari Video Chess ROM dump with detailed comments explaining the assembly code and game logic. Let me create a comprehensive annotated version:
+> I'll break this down into sections. Let me start with the initialization and main game loop:
+
+
+🛠️  Using tool: fs_write
+ ● Path: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part1.asm
+<...>
+ ↳ Purpose: Creating annotated Video Chess ROM - Part 1: Initialization and Main Loop
+
+Allow this action? Use 't' to trust (always allow) this tool for the session. [y/n/t]:
+> t
+
+Creating: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part1.asm
+ ● Completed in 0.0s
+
+> Now let me continue with the move processing and game state management:
+🛠️  Using tool: fs_write
+ ● Path: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part2.asm
+<...>
+ ↳ Purpose: Creating annotated Video Chess ROM - Part 2: Move Processing and Game State
+Creating: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part2.asm
+ ● Completed in 0.2s
+
+
+> Let me continue with the chess move validation and special move handling:
+🛠️  Using tool: fs_write
+ ● Path: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part3.asm
+<...>
+ ↳ Purpose: Creating annotated Video Chess ROM - Part 3: Chess Move Validation and Special Moves
+Creating: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part3.asm
+ ● Completed in 0.1s
+
+
+> Let me continue with the display generation and board rendering routines:
+🛠️  Using tool: fs_write
+ ● Path: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part4.asm
+<...>
+ ↳ Purpose: Creating annotated Video Chess ROM - Part 4: Display Generation and Board Rendering
+Creating: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part4.asm
+ ● Completed in 0.0s
+
+
+> Now let me continue with the AI logic and move generation:
+🛠️  Using tool: fs_write (trusted)
+ ● Path: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part5.asm
+<...>
+ ↳ Purpose: Creating annotated Video Chess ROM - Part 5: AI Logic and Move Generation
+Creating: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part5.asm
+ ● Completed in 0.0s
+
+
+> Let me continue with the final sections covering piece movement, board evaluation, and lookup tables:
+🛠️  Using tool: fs_write (trusted)
+<...>
+ ↳ Purpose: Creating annotated Video Chess ROM - Part 6: Board Evaluation and Piece Movement
+Creating: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part6.asm
+ ● Completed in 0.0s
+
+
+> Finally, let me create the last part with the lookup tables and data:
+🛠️  Using tool: fs_write (trusted)
+ ● Path: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part7.asm
+<...>
+↳ Purpose: Creating annotated Video Chess ROM - Part 7: Lookup Tables and Data
+Creating: /Users/dacut/projects/video-chess-ai/video_chess_annotated_part7.asm
+ ● Completed in 0.0s
+
+
+> I've created a comprehensive annotated version of the Atari Video Chess ROM dump, broken into 7 parts for readability. Here's what I've documented:
+
+## Key Features Identified:
+
+System Architecture:
+• 6507 processor code starting at $F000
+• Proper initialization with stack setup and RAM clearing
+• TIA (Television Interface Adapter) register usage for display
+
+Chess Game Implementation:
+• Complete chess rules including special moves (castling, en passant)
+• AI opponent with multiple difficulty levels
+• Move validation and legal move checking
+• Board state management and piece tracking
+
+Display System:
+• Scanline-based graphics generation
+• Chess piece sprites and board rendering
+• Display buffer management
+• Board flipping for player perspective
+
+Input/Output:
+• Joystick input processing for piece movement
+• Console switch reading (difficulty, game select)
+• Sound generation for move feedback
+• Timer-based game state updates
+
+AI Logic:
+• Move evaluation and scoring
+• Difficulty-based move selection
+• Board position analysis
+• Computer move generation
+
+Data Structures:
+• Lookup tables for piece movement patterns
+• Graphics data for chess pieces
+• Sound frequency tables
+• Board evaluation constants
+
+The code shows sophisticated programming techniques for the limited 4KB ROM space, including efficient memory usage, compact algorithms, and clever use of the Atari 2600's hardware capabilities to create a fully functional chess game.
