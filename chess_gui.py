@@ -7,7 +7,7 @@ class ChessGUI:
         pygame.init()
         self.size = 640
         self.square_size = self.size // 8
-        self.screen = pygame.display.set_mode((self.size, self.size + 100))
+        self.screen = pygame.display.set_mode((self.size + 40, self.size + 130))
         pygame.display.set_caption("Atari Video Chess")
         
         self.game = VideoChess()
@@ -54,20 +54,34 @@ class ChessGUI:
                     text = self.piece_font.render(symbol, True, (0, 0, 0))
                     text_rect = text.get_rect(center=rect.center)
                     self.screen.blit(text, text_rect)
+        
+        # Draw column letters (A-H) at bottom
+        for col in range(8):
+            letter = chr(ord('A') + col)
+            text = self.ui_font.render(letter, True, (0, 0, 0))
+            x = col * self.square_size + self.square_size // 2 - text.get_width() // 2
+            self.screen.blit(text, (x, self.size + 5))
+        
+        # Draw row numbers (1-8) on right side
+        for row in range(8):
+            number = str(8 - row)  # Chess rows are numbered 8-1 from top to bottom
+            text = self.ui_font.render(number, True, (0, 0, 0))
+            y = row * self.square_size + self.square_size // 2 - text.get_height() // 2
+            self.screen.blit(text, (self.size + 5, y))
     
     def draw_ui(self):
         # Input area
-        input_rect = pygame.Rect(10, self.size + 10, self.size - 20, 40)
+        input_rect = pygame.Rect(10, self.size + 40, self.size - 20, 40)
         pygame.draw.rect(self.screen, (255, 255, 255), input_rect)
         pygame.draw.rect(self.screen, (0, 0, 0), input_rect, 2)
         
         # Input text
         text = self.ui_font.render(f"Move: {self.input_text}", True, (0, 0, 0))
-        self.screen.blit(text, (15, self.size + 20))
+        self.screen.blit(text, (15, self.size + 50))
         
         # Instructions
         inst = self.ui_font.render("Enter move (e.g., A2 B4 or A2B4)", True, (0, 0, 0))
-        self.screen.blit(inst, (10, self.size + 60))
+        self.screen.blit(inst, (10, self.size + 90))
     
     def parse_move(self, text):
         """Parse simple notation like 'A2 B4' or 'A2B4'"""
