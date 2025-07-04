@@ -169,6 +169,22 @@ class VideoChess:
                     if target_piece != 0 and (target_piece & 0xC0) != (self.board[square] & 0xC0):
                         moves.append(target_square)
         
+        elif piece_type == 3:  # Bishop
+            for dr, dc in [(1,1), (1,-1), (-1,1), (-1,-1)]:
+                for i in range(1, 8):
+                    nr, nc = row + dr*i, col + dc*i
+                    if 0 <= nr < 8 and 0 <= nc < 8:
+                        moves.append(nr * 8 + nc)
+                        if self.board[nr * 8 + nc] != 0:
+                            break
+        
+        elif piece_type == 4:  # Knight
+            knight_moves = [(2,1), (2,-1), (-2,1), (-2,-1), (1,2), (1,-2), (-1,2), (-1,-2)]
+            for dr, dc in knight_moves:
+                nr, nc = row + dr, col + dc
+                if 0 <= nr < 8 and 0 <= nc < 8:
+                    moves.append(nr * 8 + nc)
+        
         elif piece_type == 5:  # Rook
             for dr, dc in [(0,1), (0,-1), (1,0), (-1,0)]:
                 for i in range(1, 8):
@@ -178,7 +194,37 @@ class VideoChess:
                         if self.board[nr * 8 + nc] != 0:
                             break
         
-        # Add other piece types as needed...
+        elif piece_type == 2:  # Queen
+            for dr, dc in [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]:
+                for i in range(1, 8):
+                    nr, nc = row + dr*i, col + dc*i
+                    if 0 <= nr < 8 and 0 <= nc < 8:
+                        moves.append(nr * 8 + nc)
+                        if self.board[nr * 8 + nc] != 0:
+                            break
+        
+        elif piece_type == 6:  # King
+            for dr, dc in [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]:
+                nr, nc = row + dr, col + dc
+                if 0 <= nr < 8 and 0 <= nc < 8:
+                    moves.append(nr * 8 + nc)
+            
+            # Castling moves
+            if self.castling_flags != 0:  # If castling still possible
+                is_white = self.board[square] & 0x40
+                king_start = 4 if is_white else 60  # E1 for white, E8 for black
+                
+                if square == king_start:  # King hasn't moved
+                    # Kingside castling
+                    if (col < 7 and self.board[square + 1] == 0 and 
+                        self.board[square + 2] == 0):
+                        moves.append(square + 2)
+                    
+                    # Queenside castling  
+                    if (col > 0 and self.board[square - 1] == 0 and 
+                        self.board[square - 2] == 0 and self.board[square - 3] == 0):
+                        moves.append(square - 2)
+        
         return moves
     
     def validate_move(self):
