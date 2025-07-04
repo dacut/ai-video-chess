@@ -20,6 +20,7 @@ class VideoChess:
         self.moving_piece = 0
         self.captured_piece = 0
         self.move_state = 0
+        self.en_passant_square = -1  # Track en passant target square
         
         # Display and input
         self.joystick_state = 0
@@ -119,12 +120,17 @@ class VideoChess:
         if not moves:
             return None
         
-        # Simple evaluation - prefer captures
+        # Improved AI - prioritize captures and center control
         best_score = -999
         best_move = moves[0]
         
         for move in moves:
             score = self.evaluate_move(move)
+            # Add positional bonus for center squares
+            dest_row, dest_col = move[1] // 8, move[1] % 8
+            if 2 <= dest_row <= 5 and 2 <= dest_col <= 5:
+                score += 1
+            
             if score > best_score:
                 best_score = score
                 best_move = move
@@ -166,7 +172,11 @@ class VideoChess:
                 if 0 <= new_row < 8 and 0 <= col + dc < 8:
                     target_square = new_row * 8 + (col + dc)
                     target_piece = self.board[target_square]
+                    # Normal diagonal capture
                     if target_piece != 0 and (target_piece & 0xC0) != (self.board[square] & 0xC0):
+                        moves.append(target_square)
+                    # En passant capture
+                    elif target_square == self.en_passant_square:
                         moves.append(target_square)
         
         elif piece_type == 3:  # Bishop
@@ -250,16 +260,32 @@ class VideoChess:
         piece_type = source_piece & 0x0F
         legal_moves = self.get_piece_moves(source, piece_type)
         
-        return dest in legal_moves
+        if dest not in legal_moves:
+            return False
+        
+        # Basic check detection - don't allow king to move into attack
+        if piece_type == 6:  # King
+            return not self.is_square_attacked(dest, source_piece & 0xC0)
+        
+        return True
     
     def execute_move(self):
         """Execute the current move (F379-F383)"""
+        # Clear previous en passant opportunity
+        self.en_passant_square = -1
+        
         # Handle special moves (castling, en passant)
         if self.is_special_move():
             self.handle_special_move()
         
         # Standard move
         self.captured_piece = self.board[self.dest_square]
+        
+        # Check for pawn two-square advance (sets up en passant)
+        piece_type = self.moving_piece & 0x0F
+        if piece_type == 1 and abs(self.dest_square - self.source_square) == 16:
+            # Set en passant square behind the pawn
+            self.en_passant_square = (self.source_square + self.dest_square) // 2
         
         # Check for king capture (game over)
         if self.captured_piece != 0 and (self.captured_piece & 0x0F) == 6:
@@ -282,7 +308,7 @@ class VideoChess:
         
         # Check for en passant (pawn diagonal capture to empty square)
         if piece_type == 1:  # Pawn
-            if abs(self.dest_square - self.source_square) in [7, 9] and self.board[self.dest_square] == 0:
+            if self.dest_square == self.en_passant_square:
                 return True
         
         return False
@@ -304,9 +330,10 @@ class VideoChess:
             self.board[rook_source] = 0
         
         elif piece_type == 1:  # En passant
-            # Remove captured pawn
-            captured_pawn_square = self.source_square + (self.dest_square - self.source_square) // abs(self.dest_square - self.source_square) * 8
-            self.board[captured_pawn_square] = 0
+            # Remove captured pawn (it's on the same rank as source, not destination)
+            if self.dest_square == self.en_passant_square:
+                captured_pawn_square = self.source_square + (self.dest_square % 8 - self.source_square % 8)
+                self.board[captured_pawn_square] = 0
     
     def evaluate_move(self, move):
         """Evaluate move quality for AI (F430-F452)"""
@@ -349,6 +376,19 @@ class VideoChess:
     def set_difficulty(self, level):
         """Set AI difficulty level (0-7)"""
         self.difficulty = max(0, min(7, level))
+    
+    def is_square_attacked(self, square, by_color):
+        """Check if square is attacked by pieces of given color"""
+        enemy_color = 0x80 if by_color == 0x40 else 0x40
+        
+        for sq in range(64):
+            piece = self.board[sq]
+            if piece & enemy_color:
+                piece_type = piece & 0x0F
+                moves = self.get_piece_moves(sq, piece_type)
+                if square in moves:
+                    return True
+        return False
 
 # Example usage
 if __name__ == "__main__":
