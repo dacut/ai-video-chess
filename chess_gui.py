@@ -11,7 +11,15 @@ class ChessGUI:
         pygame.display.set_caption("Atari Video Chess")
         
         self.game = VideoChess()
-        self.font = pygame.font.Font(None, 36)
+        # Load fonts - 48pt for pieces, 36pt for UI text
+        try:
+            self.piece_font = pygame.font.Font('NotoSansSymbols2-Regular.ttf', 48)
+            self.ui_font = pygame.font.Font(None, 36)
+        except:
+            # Fallback to system font if file not found
+            self.piece_font = pygame.font.Font(None, 48)
+            self.ui_font = pygame.font.Font(None, 36)
+        
         self.input_text = ""
         
         # Colors
@@ -19,7 +27,7 @@ class ChessGUI:
         self.BLACK = (181, 136, 99)
         self.HIGHLIGHT = (255, 255, 0)
         
-        # Piece symbols
+        # Unicode chess piece symbols
         self.pieces = {
             1: '♟', 2: '♛', 3: '♝', 4: '♞', 5: '♜', 6: '♚'  # Black
         }
@@ -43,7 +51,7 @@ class ChessGUI:
                     is_white = piece & 0x40
                     symbol = self.white_pieces[piece_type] if is_white else self.pieces[piece_type]
                     
-                    text = self.font.render(symbol, True, (0, 0, 0))
+                    text = self.piece_font.render(symbol, True, (0, 0, 0))
                     text_rect = text.get_rect(center=rect.center)
                     self.screen.blit(text, text_rect)
     
@@ -54,11 +62,11 @@ class ChessGUI:
         pygame.draw.rect(self.screen, (0, 0, 0), input_rect, 2)
         
         # Input text
-        text = self.font.render(f"Move: {self.input_text}", True, (0, 0, 0))
+        text = self.ui_font.render(f"Move: {self.input_text}", True, (0, 0, 0))
         self.screen.blit(text, (15, self.size + 20))
         
         # Instructions
-        inst = self.font.render("Enter move (e.g., A2 B4 or A2B4)", True, (0, 0, 0))
+        inst = self.ui_font.render("Enter move (e.g., A2 B4 or A2B4)", True, (0, 0, 0))
         self.screen.blit(inst, (10, self.size + 60))
     
     def parse_move(self, text):
