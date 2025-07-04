@@ -263,8 +263,6 @@ class VideoChess:
         
         # Check for king capture (game over)
         if self.captured_piece != 0 and (self.captured_piece & 0x0F) == 6:
-            winner = "White" if self.moving_piece & 0x40 else "Black"
-            print(f"Game Over! {winner} wins by capturing the king!")
             self.game_flags |= 0x80  # Set game over flag
         
         self.board[self.dest_square] = self.moving_piece

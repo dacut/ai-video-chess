@@ -21,6 +21,7 @@ class ChessGUI:
             self.ui_font = pygame.font.Font(None, 36)
         
         self.input_text = ""
+        self.game_over_message = ""
         
         # Colors
         self.WHITE = (240, 217, 181)
@@ -70,18 +71,29 @@ class ChessGUI:
             self.screen.blit(text, (self.size + 5, y))
     
     def draw_ui(self):
-        # Input area
-        input_rect = pygame.Rect(10, self.size + 40, self.size - 20, 40)
-        pygame.draw.rect(self.screen, (255, 255, 255), input_rect)
-        pygame.draw.rect(self.screen, (0, 0, 0), input_rect, 2)
+        # Check for game over
+        if self.game.game_flags & 0x80:
+            if not self.game_over_message:
+                winner = "White" if self.game.captured_piece & 0x80 else "Black"
+                self.game_over_message = f"Game Over! {winner} wins!"
         
-        # Input text
-        text = self.ui_font.render(f"Move: {self.input_text}", True, (0, 0, 0))
-        self.screen.blit(text, (15, self.size + 50))
-        
-        # Instructions
-        inst = self.ui_font.render("Enter move (e.g., A2 B4 or A2B4)", True, (0, 0, 0))
-        self.screen.blit(inst, (10, self.size + 90))
+        if self.game_over_message:
+            # Game over message
+            text = self.ui_font.render(self.game_over_message, True, (255, 0, 0))
+            self.screen.blit(text, (10, self.size + 50))
+        else:
+            # Input area
+            input_rect = pygame.Rect(10, self.size + 40, self.size - 20, 40)
+            pygame.draw.rect(self.screen, (255, 255, 255), input_rect)
+            pygame.draw.rect(self.screen, (0, 0, 0), input_rect, 2)
+            
+            # Input text
+            text = self.ui_font.render(f"Move: {self.input_text}", True, (0, 0, 0))
+            self.screen.blit(text, (15, self.size + 50))
+            
+            # Instructions
+            inst = self.ui_font.render("Enter move (e.g., A2 B4 or A2B4)", True, (0, 0, 0))
+            self.screen.blit(inst, (10, self.size + 90))
     
     def parse_move(self, text):
         """Parse simple notation like 'A2 B4' or 'A2B4'"""
@@ -126,7 +138,7 @@ class ChessGUI:
                     pygame.quit()
                     sys.exit()
                 
-                elif event.type == pygame.KEYDOWN:
+                elif event.type == pygame.KEYDOWN and not (self.game.game_flags & 0x80):
                     if event.key == pygame.K_RETURN:
                         move = self.parse_move(self.input_text)
                         if move and self.make_move(*move):
