@@ -43,8 +43,8 @@ class ChessGUI:
                                  self.square_size, self.square_size)
                 pygame.draw.rect(self.screen, color, rect)
                 
-                # Draw piece
-                square = row * 8 + col
+                # Draw piece (flip row for chess convention)
+                square = (7 - row) * 8 + col
                 piece = self.game.board[square]
                 if piece != 0:
                     piece_type = piece & 0x0F
