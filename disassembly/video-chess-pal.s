@@ -6,7 +6,7 @@ F004   9A                   TXS
 F005   E8                   INX
 F006   8A                   TXA
 F007   95 00      LF007     STA $00,X
-F009   E8                   INX             
+F009   E8                   INX
 F00A   D0 FB                BNE LF007
 F00C   20 AD F2             JSR LF2AD
 F00F   A9 FF      LF00F     LDA #$FF

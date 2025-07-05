@@ -557,7 +557,7 @@ F2FC   4C 20 F5             JMP LF520       ; Jump to game initialization
 
 ; ===== GAME SELECT AND DIFFICULTY HANDLING =====
 F2FF   4A         LF2FF     LSR A           ; Shift console switches right
-F300   B0 13                BCS LF315       ; If game select pressed, handle it
+F300   B0 13                BCS LF315       ; If game reset pressed, handle it
 
 ; Handle difficulty/speed adjustment
 F302   A4 F2                LDY $F2         ; Load current difficulty level
