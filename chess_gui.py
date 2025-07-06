@@ -28,12 +28,12 @@ class ChessGUI:
         self.BLACK = (181, 136, 99)
         self.HIGHLIGHT = (255, 255, 0)
         
-        # Unicode chess piece symbols
+        # Unicode chess piece symbols - corrected mapping
         self.pieces = {
-            1: '♟', 2: '♛', 3: '♝', 4: '♞', 5: '♜', 6: '♚'  # Black
+            1: '♚', 2: '♛', 3: '♝', 4: '♞', 5: '♜', 6: '♟'  # Black
         }
         self.white_pieces = {
-            1: '♙', 2: '♕', 3: '♗', 4: '♘', 5: '♖', 6: '♔'  # White
+            1: '♔', 2: '♕', 3: '♗', 4: '♘', 5: '♖', 6: '♙'  # White
         }
     
     def draw_board(self):
@@ -49,7 +49,7 @@ class ChessGUI:
                 piece = self.game.board[square]
                 if piece != 0:
                     piece_type = piece & 0x0F
-                    is_white = piece & 0x40
+                    is_white = piece & 0x08
                     symbol = self.white_pieces[piece_type] if is_white else self.pieces[piece_type]
                     
                     text = self.piece_font.render(symbol, True, (0, 0, 0))
@@ -118,7 +118,7 @@ class ChessGUI:
     
     def make_move(self, from_square, to_square):
         """Execute move if valid"""
-        if self.game.board[from_square] & 0x40:  # White piece
+        if self.game.board[from_square] & 0x08:  # White piece
             self.game.source_square = from_square
             self.game.dest_square = to_square
             self.game.moving_piece = self.game.board[from_square]

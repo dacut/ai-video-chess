@@ -27,8 +27,8 @@ class VideoChess:
         self.console_switches = 0
         self.cursor_pos = 0
         
-        # Piece values (from ROM data)
-        self.piece_values = [0, 1, 3, 3, 5, 9, 100]  # empty, pawn, knight, bishop, rook, queen, king
+        # Piece values (from ROM data) - corrected mapping
+        self.piece_values = [0, 100, 9, 3, 3, 5, 1]  # empty, king, queen, bishop, knight, rook, pawn
         
         # Initialize board to starting position
         self.init_board()
@@ -38,18 +38,18 @@ class VideoChess:
         # Clear board
         self.board = [0] * 64
         
-        # Initial piece setup (back rank)
-        initial_pieces = [5, 4, 3, 2, 6, 3, 4, 5]  # rook, knight, bishop, queen, king, bishop, knight, rook
+        # Initial piece setup (back rank) - actual Atari encoding
+        initial_pieces = [5, 4, 3, 2, 1, 3, 4, 5]  # rook, knight, bishop, queen, king, bishop, knight, rook
         
-        # White pieces (bottom)
+        # White pieces (bottom) - bit 3 set (0x08)
         for i in range(8):
-            self.board[i] = initial_pieces[i] | 0x40  # white pieces
-            self.board[i + 8] = 1 | 0x40  # white pawns
+            self.board[i] = initial_pieces[i] | 0x08  # white pieces
+            self.board[i + 8] = 0x8E  # white pawns (0x80 | 0x08 | 0x06)
         
-        # Black pieces (top)
+        # Black pieces (top) - no color bit
         for i in range(8):
-            self.board[i + 48] = 1 | 0x80  # black pawns
-            self.board[i + 56] = initial_pieces[i] | 0x80  # black pieces
+            self.board[i + 48] = 0x86  # black pawns (0x80 | 0x06)
+            self.board[i + 56] = initial_pieces[i]  # black pieces
         
         # Reset game state
         self.current_player = 0
@@ -92,7 +92,7 @@ class VideoChess:
         if self.move_state == 0:
             # Select piece
             piece = self.board[self.cursor_pos]
-            if piece & 0x40:  # White piece
+            if piece & 0x08:  # White piece
                 self.source_square = self.cursor_pos
                 self.moving_piece = piece
                 self.move_state = 1
@@ -154,8 +154,8 @@ class VideoChess:
         moves = []
         row, col = square // 8, square % 8
         
-        if piece_type == 1:  # Pawn
-            direction = 1 if self.board[square] & 0x40 else -1  # White moves up, black moves down
+        if piece_type == 6:  # Pawn
+            direction = 1 if self.board[square] & 0x08 else -1  # White moves up, black moves down
             new_row = row + direction
             
             # Forward move
@@ -163,7 +163,7 @@ class VideoChess:
                 moves.append(new_row * 8 + col)
                 
                 # Two-square advance from starting position
-                start_row = 1 if self.board[square] & 0x40 else 6
+                start_row = 1 if self.board[square] & 0x08 else 6
                 if row == start_row and 0 <= new_row + direction < 8 and self.board[(new_row + direction) * 8 + col] == 0:
                     moves.append((new_row + direction) * 8 + col)
             
@@ -173,7 +173,7 @@ class VideoChess:
                     target_square = new_row * 8 + (col + dc)
                     target_piece = self.board[target_square]
                     # Normal diagonal capture
-                    if target_piece != 0 and (target_piece & 0xC0) != (self.board[square] & 0xC0):
+                    if target_piece != 0 and (target_piece & 0x08) != (self.board[square] & 0x08):
                         moves.append(target_square)
                     # En passant capture
                     elif target_square == self.en_passant_square:
@@ -213,7 +213,7 @@ class VideoChess:
                         if self.board[nr * 8 + nc] != 0:
                             break
         
-        elif piece_type == 6:  # King
+        elif piece_type == 1:  # King
             for dr, dc in [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]:
                 nr, nc = row + dr, col + dc
                 if 0 <= nr < 8 and 0 <= nc < 8:
@@ -264,7 +264,7 @@ class VideoChess:
             return False
         
         # Basic check detection - don't allow king to move into attack
-        if piece_type == 6:  # King
+        if piece_type == 1:  # King
             return not self.is_square_attacked(dest, source_piece & 0xC0)
         
         return True
@@ -288,7 +288,7 @@ class VideoChess:
             self.en_passant_square = (self.source_square + self.dest_square) // 2
         
         # Check for king capture (game over)
-        if self.captured_piece != 0 and (self.captured_piece & 0x0F) == 6:
+        if self.captured_piece != 0 and (self.captured_piece & 0x0F) == 1:
             self.game_flags |= 0x80  # Set game over flag
         
         self.board[self.dest_square] = self.moving_piece
@@ -302,12 +302,12 @@ class VideoChess:
         piece_type = self.moving_piece & 0x07
         
         # Check for castling (king moving 2 squares)
-        if piece_type == 6:  # King
+        if piece_type == 1:  # King
             if abs(self.dest_square - self.source_square) == 2:
                 return True
         
         # Check for en passant (pawn diagonal capture to empty square)
-        if piece_type == 1:  # Pawn
+        if piece_type == 6:  # Pawn
             if self.dest_square == self.en_passant_square:
                 return True
         
@@ -317,7 +317,7 @@ class VideoChess:
         """Handle castling and en passant moves (F17F)"""
         piece_type = self.moving_piece & 0x07
         
-        if piece_type == 6:  # Castling
+        if piece_type == 1:  # Castling
             # Move rook as well
             if self.dest_square > self.source_square:  # Kingside
                 rook_source = self.source_square + 3
@@ -329,7 +329,7 @@ class VideoChess:
             self.board[rook_dest] = self.board[rook_source]
             self.board[rook_source] = 0
         
-        elif piece_type == 1:  # En passant
+        elif piece_type == 6:  # En passant
             # Remove captured pawn (it's on the same rank as source, not destination)
             if self.dest_square == self.en_passant_square:
                 captured_pawn_square = self.source_square + (self.dest_square % 8 - self.source_square % 8)
@@ -355,7 +355,7 @@ class VideoChess:
         piece_type = self.moving_piece & 0x07
         
         # Update castling rights
-        if piece_type == 6:  # King moved
+        if piece_type == 1:  # King moved
             if self.moving_piece & 0x40:  # White king
                 self.castling_flags &= 0xFC  # Clear white castling
             else:  # Black king

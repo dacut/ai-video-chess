@@ -10,11 +10,10 @@ Bit:  7   6   5   4   3   2   1   0
 
 ## Bit Meanings
 
-### Bits 7-6: Color Bits (0xC0 mask)
-- `00` (0x00) = Empty square
-- `01` (0x40) = White piece  
-- `10` (0x80) = Black piece
-- `11` (0xC0) = Invalid/unused
+### Color Encoding
+- **Black pieces**: No color bit (0x00-0x0F range)
+- **White pieces**: Bit 3 set (0x08 added to piece type)
+- **Pawns**: Bit 7 set (0x80 added) for state tracking
 
 ### Bits 5-4: Additional Flags (0x30 mask)
 - Used for special piece states or display information
@@ -22,26 +21,32 @@ Bit:  7   6   5   4   3   2   1   0
 
 ### Bits 3-0: Piece Type (0x0F mask)
 - `0000` (0) = Empty square
-- `0001` (1) = Pawn
+- `0001` (1) = King (based on FEF2 table)
 - `0010` (2) = Queen  
 - `0011` (3) = Bishop
 - `0100` (4) = Knight
 - `0101` (5) = Rook
-- `0110` (6) = King
+- `0110` (6) = Pawn (based on F2BF-F2C5 pawn setup)
 - `0111` (7) = Unused
 - `1000-1111` (8-15) = Unused/special states
 
 ## Examples
 
-### White Pieces
-- White Pawn: `0x41` = `01000001` = 0x40 (white) | 0x01 (pawn)
-- White Rook: `0x45` = `01000101` = 0x40 (white) | 0x05 (rook)  
-- White King: `0x46` = `01000110` = 0x40 (white) | 0x06 (king)
+### Black Pieces (no color bit)
+- Black King: `0x01`
+- Black Queen: `0x02`
+- Black Bishop: `0x03`
+- Black Knight: `0x04`
+- Black Rook: `0x05`
+- Black Pawn: `0x86` (0x80 | 0x06)
 
-### Black Pieces  
-- Black Pawn: `0x81` = `10000001` = 0x80 (black) | 0x01 (pawn)
-- Black Rook: `0x85` = `10000101` = 0x80 (black) | 0x05 (rook)
-- Black King: `0x86` = `10000110` = 0x80 (black) | 0x06 (king)
+### White Pieces (bit 3 set)
+- White King: `0x09` (0x08 | 0x01)
+- White Queen: `0x0A` (0x08 | 0x02)
+- White Bishop: `0x0B` (0x08 | 0x03)
+- White Knight: `0x0C` (0x08 | 0x04)
+- White Rook: `0x0D` (0x08 | 0x05)
+- White Pawn: `0x8E` (0x80 | 0x08 | 0x06)
 
 ### Empty Square
 - Empty: `0x00` = `00000000` = no color, no piece
@@ -60,7 +65,8 @@ is_empty = piece_value == 0          # Check if empty
 
 ### Creating Pieces
 ```python
-white_pawn = 0x40 | 1    # 0x41
+white_king = 0x40 | 1    # 0x41
+white_pawn = 0x40 | 6    # 0x46
 black_king = 0x80 | 6    # 0x86
 ```
 
