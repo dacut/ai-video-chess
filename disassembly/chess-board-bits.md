@@ -11,9 +11,9 @@ Bit:  7   6   5   4   3   2   1   0
 ## Bit Meanings
 
 ### Color Encoding
-- **Black pieces**: No color bit (0x00-0x0F range)
-- **White pieces**: Bit 3 set (0x08 added to piece type)
-- **Pawns**: Bit 7 set (0x80 added) for state tracking
+- **Black pieces**: No color bit (0x00-0x07 range)
+- **White pieces**: Bit 3 set (0x08-0x0F range)
+- **Pawns**: Bit 7 set (0x80 added) for en passant tracking
 
 ### Bits 5-4: Additional Flags (0x30 mask)
 - Used for special piece states or display information

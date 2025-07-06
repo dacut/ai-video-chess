@@ -298,7 +298,7 @@ F18A   95 C0      LF18A     STA $C0,X       ; Store in display buffer
 F18C   A5 DE                LDA $DE         ; Load display state
 F18E   90 31                BCC LF1C1       ; If carry clear, continue
 
-; Display pattern generation loop
+; Display pattern generation loop - CHECKING COLOR AFTER SHIFTING
 F190   48                   PHA             ; Push A to stack
 F191   CA                   DEX             ; Decrement X
 F192   30 31                BMI LF1C5       ; If negative, exit loop
@@ -306,12 +306,12 @@ F194   CA         LF194     DEX             ; Decrement X again
 F195   B9 80 00             LDA $0080,Y     ; Load from board array
 F198   C8                   INY             ; Increment Y
 F199   0A                   ASL A           ; Shift left (multiply by 2)
-F19A   0A                   ASL A           ; Shift left (multiply by 4)
-F19B   0A                   ASL A           ; Shift left (multiply by 8)
-F19C   C9 40                CMP #$40        ; Compare with 64
-F19E   90 E3                BCC LF183       ; If less, branch with carry clear
-F1A0   F0 E2                BEQ LF184       ; If equal, branch with carry set
-F1A2   29 38                AND #$38        ; Mask bits
+F19A   0A                   ASL A           ; Shift left (multiply by 4) 
+F19B   0A                   ASL A           ; Shift left (multiply by 8) - NOW BIT 3 BECOMES BIT 6
+F19C   C9 40                CMP #$40        ; Compare with $40 - CHECKING IF WHITE (bit 3 shifted to bit 6)
+F19E   90 E3                BCC LF183       ; If less than $40, it's black piece
+F1A0   F0 E2                BEQ LF184       ; If equal to $40, it's white piece
+F1A2   29 38                AND #$38        ; Mask bits for piece type
 F1A4   EA                   NOP             ; No operation
 F1A5   95 C0                STA $C0,X       ; Store in display buffer
 F1A7   A5 DF                LDA $DF         ; Load game state
@@ -509,11 +509,11 @@ F2B9   95 80                STA $80,X       ; Store in board position (white bac
 F2BB   49 08                EOR #$08        ; Flip color bit
 F2BD   95 B8                STA $B8,X       ; Store in board position (black back rank)
 
-; Set up pawns
-F2BF   A9 8E                LDA #$8E        ; Load pawn + color bits
-F2C1   95 B0                STA $B0,X       ; Store black pawns
-F2C3   A9 46                LDA #$46        ; Load pawn + different color
-F2C5   95 88                STA $88,X       ; Store white pawns
+; Set up pawns - BIT $80 SET FOR PAWN STATE TRACKING
+F2BF   A9 8E                LDA #$8E        ; Load $8E = $80|$08|$06 (bit7=pawn flag, bit3=white, type=6)
+F2C1   95 B0                STA $B0,X       ; Store black pawns (rank 7)
+F2C3   A9 46                LDA #$46        ; Load $46 = $40|$06 (OLD ENCODING - should be $86 for black pawns)
+F2C5   95 88                STA $88,X       ; Store white pawns (rank 2)
 
 ; Clear middle squares of board
 F2C7   94 90                STY $90,X       ; Clear rank 3
