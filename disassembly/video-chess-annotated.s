@@ -29,7 +29,7 @@ F015   85 01                STA $01         ; Store in TIA VBLANK
 ; Game state counters and timers
 F017   E6 D3                INC $D3         ; Increment game timer low byte
 F019   D0 06                BNE LF021       ; If no overflow, skip high byte increment
-F01B   E6 F1                INC $F1         ; Increment game timer high byte
+F01B   E6 F1                INC $F1         ; Increment game timer low byte
 F01D   D0 02                BNE LF021       ; If no overflow, continue
 F01F   85 F0                STA $F0         ; Reset timer if overflow
 
@@ -494,10 +494,10 @@ F2A5   D0 FB                BNE LF2A2       ; Wait until timer expires
 F2A7   4C 0F F0             JMP LF00F       ; Jump back to main game loop
 
 ; ===== CONSOLE SWITCH READING AND BOARD SETUP =====
-F2AA   AD 82 02   LF2AA     LDA $0282       ; Read console switches
+F2AA   AD 82 02   LF2AA     LDA $0282       ; Read console switches (SWCHB)
 F2AD   A0 00      LF2AD     LDY #$00        ; Initialize Y to 0
-F2AF   4A                   LSR A           ; Shift right (check bit 0)
-F2B0   B0 4D                BCS LF2FF       ; If bit set, handle game select
+F2AF   4A                   LSR A           ; Shift right (check SELECT switch - bit 0)
+F2B0   B0 4D                BCS LF2FF       ; If SELECT pressed, handle game select
 
 ; Initialize chess board to starting position
 F2B2   84 E4                STY $E4         ; Clear game difficulty
@@ -530,12 +530,12 @@ F2D6   86 E5                STX $E5         ; Clear move flags
 F2D8   24 ED                BIT $ED         ; Test console switches
 F2DA   10 10                BPL LF2EC       ; If positive, skip color setup
 
-; Handle player color selection
+; Handle player color selection and board editing
 F2DC   24 D3                BIT $D3         ; Test game timer
 F2DE   70 01                BVS LF2E1       ; If overflow set, increment
 F2E0   E8                   INX             ; Increment X (X = 0)
-F2E1   94 8C      LF2E1     STY $8C,X       ; Clear board position
-F2E3   95 9C                STA $9C,X       ; Store piece
+F2E1   94 8C      LF2E1     STY $8C,X       ; Clear board position (board edit mode)
+F2E3   95 9C                STA $9C,X       ; Store piece (board edit mode)
 F2E5   06 B9                ASL $B9         ; Shift board state
 F2E7   38                   SEC             ; Set carry
 F2E8   66 B9                ROR $B9         ; Rotate right with carry
@@ -949,9 +949,9 @@ F542   10 EE                BPL LF532       ; If positive, copy state
 F544   60         LF544     RTS             ; Return
 
 ; ===== BOARD FLIP AND DISPLAY SETUP =====
-F545   24 ED      LF545     BIT $ED         ; Test console switches
+F545   24 ED      LF545     BIT $ED         ; Test console switches (stored copy of SWCHB)
 F547   8C 96 02             STY $0296       ; Store in TIA register
-F54A   10 27                BPL LF573       ; If positive, skip board flip
+F54A   10 27                BPL LF573       ; If bit 7 clear (RIGHT DIFF = B), skip board flip
 
 ; Flip board for player perspective
 F54C   A2 3F                LDX #$3F        ; Load 63 (for 64 squares)
