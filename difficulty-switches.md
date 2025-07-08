@@ -5,10 +5,11 @@ The Atari 2600 console switches ($0282 - SWCHB register) control special game mo
 ## **Console Switch Layout ($0282)**
 ```
 Bit:  7   6   5   4   3   2   1   0
-     [R] [L] [?] [?] [?] [?] [R] [S]
+     [R] [L] [?] [?] [C] [?] [R] [S]
      
 R = RIGHT difficulty switch (bit 7)
-L = LEFT difficulty switch (bit 6)  
+L = LEFT difficulty switch (bit 6)
+C = COLOR/BW switch (bit 3)  
 R = RESET switch (bit 1)
 S = SELECT switch (bit 0)
 ```
@@ -33,6 +34,11 @@ S = SELECT switch (bit 0)
   - Human player controls white pieces (default)
   - Human makes first move
   - Standard board orientation
+
+### **COLOR/BW Switch (Bit 3)**
+- **COLOR (bit 3 = 1)**: Color display mode
+- **BW (bit 3 = 0)**: Black & white display mode
+- May affect piece rendering or board colors
 
 ## **Assembly Code References**
 
