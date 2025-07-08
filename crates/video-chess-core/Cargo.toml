@@ -1,0 +1,11 @@
+[package]
+name = "video-chess-core"
+description = "Atari 2600 Video Chess core logic and state management"
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+version.workspace = true
+
+[dependencies]

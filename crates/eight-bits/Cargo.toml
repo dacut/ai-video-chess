@@ -1,0 +1,15 @@
+[package]
+name = "eight-bits"
+description = "Various 8-bit chip-related emulation structures"
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+version.workspace = true
+
+[features]
+default = ["6502"]
+6502 = []
+
+[dependencies]
