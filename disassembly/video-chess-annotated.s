@@ -40,18 +40,18 @@ F025   85 E9                STA $E9         ; Store random seed
 
 ; Read console switches (difficulty, game select, etc.)
 F027   AD 82 02             LDA $0282       ; Read console switches
-F02A   29 08                AND #$08        ; Isolate bit 3 (difficulty switch)
+F02A   29 08                AND #$08        ; Isolate bit 3 (color/bw)
 F02C   4A                   LSR A           ; Shift right to get 0 or 4
 F02D   A8                   TAY             ; Use as index
 
-; Display pattern generation loop
+; Background color generation during AI thinking
 F02E   A2 04                LDX #$04        ; Loop counter for 4 iterations
 F030   A5 F1      LF030     LDA $F1         ; Load timer high byte
-F032   25 F0                AND $F0         ; AND with timer low byte
-F034   59 6E FF             EOR $FF6E,Y     ; XOR with pattern data
-F037   25 E9                AND $E9         ; AND with random seed
-F039   95 DD                STA $DD,X       ; Store display pattern
-F03B   95 05                STA $05,X       ; Also store in zero page
+F032   25 F0                AND $F0         ; AND with timer low byte  
+F034   59 6E FF             EOR $FF6E,Y     ; XOR with pattern data from table
+F037   25 E9                AND $E9         ; AND with random seed - CREATES RANDOM BACKGROUND
+F039   95 DD                STA $DD,X       ; Store in game variables ($DD-$E0)
+F03B   95 05                STA $05,X       ; Store in TIA background color registers ($05-$08)
 F03D   C8                   INY             ; Next pattern index
 F03E   CA                   DEX             ; Decrement loop counter
 F03F   D0 EF                BNE LF030       ; Continue loop
