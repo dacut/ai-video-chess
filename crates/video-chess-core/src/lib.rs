@@ -1,3 +1,5 @@
+#![allow(dead_code)] // Remove once we're done documenting constants
+
 /// Game state for Video Chess
 pub struct VideoChess {
     /// RAM on the Atarti 2600; the lower 128 bytes are not present and unused.
